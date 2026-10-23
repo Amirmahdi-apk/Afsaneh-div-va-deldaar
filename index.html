@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>افسانه دیو و دلدار - نبرد عناصر چهارگانه</title>
+    <!-- کتابخانه رسمی مینی‌اپ تلگرام -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -273,7 +275,7 @@
             <div class="path-container" id="nodes-container"></div>
         </div>
 
-        <button class="btn btn-green" onclick="openStore()">🛒 خرید مجوز دژهای پایانی (۴۹ هزارتومان)</button>
+        <button class="btn btn-green" onclick="openStore()">🛒 خرید مجوز دژهای پایانی (Stars)</button>
     </div>
 
     <!-- صفحه معمای بازی -->
@@ -306,7 +308,7 @@
     var activePuzzle = null;
     var hasPaidVip = false;
 
-    // بانک معماهای بسیار عظیم و متنوع عناصر چهارگانه برای رندوم‌سازی کامل
+    // بانک معماهای عظیم و کاملاً تصادفی
     var puzzleBank = {
         water: [
             { puzzle: "الگوی جریان آب: ۳ - ۷ - ۱۵ - ۳۱ - ؟", answer: "63", hint: "هر عدد دو برابر شده و +۱ می‌شود." },
@@ -316,8 +318,7 @@
             { puzzle: "حجم مکعبی که طول یال آن ۳ متر است چند متر مکعب است؟", answer: "27", hint: "مکعب عدد ۳ (۳×۳×۳)." },
             { puzzle: "ریشه دوم عدد ۱۴۴ به اضافه جذر عدد ۲۵ چند می‌شود؟", answer: "17", hint: "۱۲ + ۵" },
             { puzzle: "کدام دریاچه بزرگ‌ترین دریاچه جهان است؟", answer: "کاسپین", hint: "دریاچه خزر یا کاسپین." },
-            { puzzle: "الگوی امواج: ۵ - ۱۰ - ۲۰ - ۴۰ - ؟", answer: "80", hint: "دو برابر شدن عدد قبلی." },
-            { puzzle: "اگر در یک مخزن آب، مقدار آب هر روز دو برابر شود و در روز ۳۰ام پر شود، در چه روزی نصف مخزن پر بوده؟", answer: "29", hint: "روز قبل از پر شدن کامل." }
+            { puzzle: "الگوی امواج: ۵ - ۱۰ - ۲۰ - ۴۰ - ؟", answer: "80", hint: "دو برابر شدن عدد قبلی." }
         ],
         fire: [
             { puzzle: "چیستان آتش: آن چیست که می‌خورد می‌میرد، آب می‌نوشد می‌میرد؟", answer: "آتش", hint: "عنصر سوزاننده." },
@@ -326,8 +327,7 @@
             { puzzle: "اگر ۵ دستگاه در ۵ دقیقه ۵ قطعه تولید کنند، ۱۰۰ دستگاه در ۱۰۰ دقیقه چند قطعه تولید می‌کنند؟", answer: "2000", hint: "تولید هر دستگاه در دقیقه ثابت است." },
             { puzzle: "حاصل عبارت جبری: (15 × 3) - 20 چند است؟", answer: "25", hint: "اول ضرب ۴۵ منهای ۲۰." },
             { puzzle: "عدد بعدی دنباله فیبوناچی: ۱ - ۱ - ۲ - ۳ - ۵ - ۸ - ۱۳ - ؟", answer: "21", hint: "مجموع دو عدد قبلی." },
-            { puzzle: "حاصل ضرب ۱۱ در ۱۱ چند است؟", answer: "121", hint: "جدول ضرب اعداد دو رقمی." },
-            { puzzle: "اگر دمای آتش از ۱۰۰ درجه سانتی‌گراد ۵۰ درجه افزایش یابد و سپس ۳۰ درجه کم شود، دما چند است؟", answer: "120", hint: "۱۰۰ + ۵۰ - ۳۰" }
+            { puzzle: "حاصل ضرب ۱۱ در ۱۱ چند است؟", answer: "121", hint: "جدول ضرب اعداد دو رقمی." }
         ],
         earth: [
             { puzzle: "چیستان خاک: آن چیست که همه‌چیز در آن رشد می‌کند اما خود زنده نیست؟", answer: "خاک", hint: "بستر گیاهان." },
@@ -336,8 +336,7 @@
             { puzzle: "محیط مستطیلی به طول ۱۰ و عرض ۶ چند است؟", answer: "32", hint: "مجموع دو برابر طول و عرض." },
             { puzzle: "اگر سن پدر سه برابر پسر باشد و مجموع سن آن‌ها ۶۰ سال باشد، سن پسر چند است؟", answer: "15", hint: "۴ برابر سن پسر = ۶۰" },
             { puzzle: "کدام عدد اول است: ۲۱، ۲۹، ۳۳، ۳۵؟", answer: "29", hint: "فقط بر خودش و یک بخش‌پذیر است." },
-            { puzzle: "تعداد ضلع‌های یک هشت‌ضلعی منتظم چند تاست؟", answer: "8", hint: "عدد نام در هشت‌ضلعی." },
-            { puzzle: "اگر مساحت مربعی ۳۶ متر مربع باشد، طول ضلع آن چند متر است؟", answer: "6", hint: "جذر عدد ۳۶." }
+            { puzzle: "تعداد ضلع‌های یک هشت‌ضلعی منتظم چند تاست؟", answer: "8", hint: "عدد نام در هشت‌ضلعی." }
         ],
         wind: [
             { puzzle: "آن چیست که دیده نمی‌شود اما درختان را می‌لرزاند؟", answer: "باد", hint: "عنصر وزنده." },
@@ -346,8 +345,7 @@
             { puzzle: "قطار برقی به سمت شمال می‌رود، دود آن به کدام طرف می‌رود؟", answer: "ندارد", hint: "قطار برقی دود ندارد!" },
             { puzzle: "نصفِ ربعِ عدد ۸۰ چند می‌شود؟", answer: "10", hint: "اول ربع ۸۰ (۲۰)، بعد نصف آن." },
             { puzzle: "کدام کلمه متضاد «امید» است؟", answer: "ناامیدی", hint: "با نا شروع می‌شود." },
-            { puzzle: "اگر باد با سرعت ۶۰ کیلومتر بر ساعت بوزد، در ۳ ساعت چه مسافتی طی می‌کند؟", answer: "180", hint: "سرعت ضرب در زمان." },
-            { puzzle: "معکوس عدد ۵ به اضافه نصف عدد ۱۰ چند می‌شود؟", answer: "5.2", hint: "۰.۲ + ۵" }
+            { puzzle: "اگر باد با سرعت ۶۰ کیلومتر بر ساعت بوزد، در ۳ ساعت چه مسافتی طی می‌کند؟", answer: "180", hint: "سرعت ضرب در زمان." }
         ]
     };
 
@@ -376,9 +374,9 @@
 
     function loadGame() {
         var savedVersion = localStorage.getItem('game_version');
-        if (savedVersion !== 'v6') {
+        if (savedVersion !== 'v7') {
             localStorage.clear();
-            localStorage.setItem('game_version', 'v6');
+            localStorage.setItem('game_version', 'v7');
             return;
         }
 
@@ -405,7 +403,7 @@
     }
 
     function saveGame() {
-        localStorage.setItem('game_version', 'v6');
+        localStorage.setItem('game_version', 'v7');
         localStorage.setItem('game_coins', coins);
         localStorage.setItem('game_hp', hp);
         localStorage.setItem('game_vip', hasPaidVip);
@@ -460,7 +458,7 @@
         }
 
         if (stages[idx].id >= 13 && !hasPaidVip) {
-            showModal('<h3>🔒 نیاز به مجوز دژهای پایانی!</h3><p style="margin:10px 0; font-size:0.85rem;">برای ورود به مراحل ۱۳ تا ۲۰ باید بسته دژهای آتشین را تهیه کرده باشید.</p><button class="btn btn-green" onclick="paySim()">خرید بسته دژهای پایانی (۴۹,۰۰۰ تومان)</button><br><br><button class="btn btn-dark" onclick="closeModal()">انصراف</button>');
+            showModal('<h3>🔒 نیاز به مجوز دژهای پایانی!</h3><p style="margin:10px 0; font-size:0.85rem;">برای ورود به مراحل ۱۳ تا ۲۰ باید بسته دژهای آتشین را تهیه کرده باشید.</p><button class="btn btn-green" onclick="paySim()">خرید بسته دژهای پایانی (Stars)</button><br><br><button class="btn btn-dark" onclick="closeModal()">انصراف</button>');
             return;
         }
 
@@ -471,7 +469,6 @@
 
         currentIdx = idx;
 
-        // انتخاب کاملاً تصادفی و رندوم از بانک سوالات بر اساس عنصر دژ
         if (stages[idx].puzzle && idx === 19) {
             activePuzzle = { puzzle: stages[idx].puzzle, answer: stages[idx].answer, hint: stages[idx].hint };
         } else {
@@ -592,17 +589,24 @@
     }
 
     function openStore() {
-        showModal('<h3>🛒 فروشگاه مراحل پایانی</h3><p style="margin-bottom:10px;">با خرید این بسته، مجوز ورود به ۸ دژ پایانی (۱۳ تا ۲۰) صادر می‌شود.</p><button class="btn btn-green" onclick="paySim()">خرید بسته دژهای آتشین (۴۹,۰۰۰ تومان)</button><br><br><button class="btn btn-dark" onclick="closeModal()">بستن</button>');
+        showModal('<h3>🛒 فروشگاه مراحل پایانی</h3><p style="margin-bottom:10px;">با خرید این بسته، مجوز ورود به ۸ دژ پایانی (۱۳ تا ۲۰) صادر می‌شود.</p><button class="btn btn-green" onclick="paySim()">خرید بسته دژهای آتشین (Telegram Stars)</button><br><br><button class="btn btn-dark" onclick="closeModal()">بستن</button>');
     }
 
+    // تابع آماده برای اتصال به درگاه Telegram Stars
     function paySim() {
-        hasPaidVip = true;
-        if (stages[11].cleared) {
-            stages[12].locked = false;
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openInvoice) {
+            // کدی که بعداً برای اتصال به سرور و ساخت لینک فاکتور استارز استفاده می‌کنید
+            alert('سیستم پرداخت ستاره‌ای تلگرام متصل خواهد شد.');
+        } else {
+            // حالت شبیه‌ساز موقت برای تست روی مرورگر
+            hasPaidVip = true;
+            if (stages[11].cleared) {
+                stages[12].locked = false;
+            }
+            saveGame();
+            renderMap();
+            showModal('<h3 style="color:#2ecc71;">✅ مجوز مراحل پایانی صادر شد!</h3><p style="margin:10px 0;">اکنون می‌توانید با فتح دژ ۱۲، وارد دژهای پایانی شوید.</p><button class="btn" onclick="closeModal(); showMap();">مشاهده نقشه</button>');
         }
-        saveGame();
-        renderMap();
-        showModal('<h3 style="color:#2ecc71;">✅ مجوز مراحل پایانی خریداری شد!</h3><p style="margin:10px 0;">اکنون می‌توانید با فتح دژ ۱۲، وارد دژهای پایانی (۱۳ تا ۲۰) شوید.</p><button class="btn" onclick="closeModal(); showMap();">مشاهده نقشه</button>');
     }
 
     function showMap() {
