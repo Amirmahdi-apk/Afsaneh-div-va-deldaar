@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>افسانه دیو و دلدار - نبرد عناصر چهارگانه</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tahoma', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0b0710;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        #game {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            background: #150c21;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #ff5722;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header {
+            background: #0b0710;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ff5722;
+            z-index: 20;
+            flex-shrink: 0;
+        }
+
+        .stat {
+            background: #251338;
+            padding: 4px 10px;
+            border-radius: 10px;
+            border: 1px solid #ffd700;
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .content {
+            padding: 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .title {
+            color: #ffd700;
+            text-align: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .map-viewport {
+            flex: 1;
+            background: linear-gradient(180deg, #1f3a13 0%, #2e4d1c 40%, #1e2d14 100%);
+            border: 2px solid #8b5a2b;
+            border-radius: 12px;
+            position: relative;
+            overflow-y: auto;
+            padding: 16px 10px 60px 10px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+        }
+
+        .path-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .node-row {
+            display: flex;
+            width: 100%;
+            align-items: center;
+        }
+
+        .node-row.left { justify-content: flex-start; padding-right: 10%; }
+        .node-row.center { justify-content: center; }
+        .node-row.right { justify-content: flex-end; padding-left: 10%; }
+
+        .castle-node {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #3d244c 0%, #170d22 100%);
+            border: 3px solid #ffd700;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .castle-node.locked {
+            border-color: #555;
+            background: #191024;
+            opacity: 0.6;
+        }
+
+        .castle-node.cleared {
+            border-color: #2ecc71;
+            background: #102518;
+        }
+
+        .castle-node.current {
+            border-color: #ff5722;
+            box-shadow: 0 0 15px #ff5722;
+        }
+
+        .castle-node.fiery-stage {
+            border-color: #ff3300;
+            background: radial-gradient(circle, #5a1a1a 0%, #220808 100%);
+            box-shadow: 0 0 15px rgba(255, 51, 0, 0.8);
+        }
+
+        .node-label {
+            position: absolute;
+            bottom: -16px;
+            background: rgba(0,0,0,0.85);
+            border: 1px solid #ffd700;
+            color: #fff;
+            font-size: 0.65rem;
+            padding: 1px 5px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        .heroine-marker {
+            position: absolute;
+            top: -18px;
+            font-size: 1.4rem;
+            animation: bounce 1.2s infinite alternate;
+            z-index: 10;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-6px); }
+        }
+
+        .btn {
+            background: linear-gradient(180deg, #ffd700 0%, #c59b27 100%);
+            color: #000;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .btn-green {
+            background: linear-gradient(180deg, #2ecc71 0%, #27ae60 100%);
+            color: #fff;
+        }
+
+        .btn-dark {
+            background: #391f56;
+            color: #fff;
+            border: 1px solid #6b3fa0;
+        }
+
+        .card {
+            background: #231336;
+            border: 1px solid #6b3fa0;
+            border-radius: 10px;
+            padding: 12px;
+            line-height: 1.5;
+            font-size: 0.85rem;
+        }
+
+        .card.fiery-card {
+            border-color: #ff3300;
+            background: linear-gradient(135deg, #2d1010 0%, #150808 100%);
+            box-shadow: inset 0 0 15px rgba(255, 51, 0, 0.3);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #ffd700;
+            background: #12091c;
+            color: #fff;
+            text-align: center;
+            font-size: 1.1rem;
+            margin: 8px 0;
+            outline: none;
+        }
+
+        .modal {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.88);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-body {
+            background: #231336;
+            border: 2px solid #ff5722;
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 330px;
+            text-align: center;
+        }
+
+        .reunion-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            font-size: 3rem;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); }
+            100% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game">
+    <header>
+        <div style="color: #ffd700; font-weight: bold; font-size: 0.9rem;">🏰 افسانه دیو و دلدار</div>
+        <div>
+            <span class="stat">❤️ <span id="hp">3</span></span>
+            <span class="stat">🪙 <span id="coins">100</span></span>
+        </div>
+    </header>
+
+    <!-- صفحه نقشه -->
+    <div id="view-map" class="content">
+        <h2 class="title">⚔️ نبرد عناصر چهارگانه برای نجات دلدار</h2>
+
+        <div class="map-viewport" id="map-scroll">
+            <div class="path-container" id="nodes-container"></div>
+        </div>
+
+        <button class="btn btn-green" onclick="openStore()">🛒 خرید مجوز دژهای پایانی (۴۹ هزارتومان)</button>
+    </div>
+
+    <!-- صفحه معمای بازی -->
+    <div id="view-game" class="content" style="display: none;">
+        <h2 class="title" id="stage-name">دژ ۱</h2>
+        
+        <div class="card" id="stage-story">
+            داستان مرحله...
+        </div>
+
+        <div class="card" id="puzzle-card-box" style="text-align: center; border-color: #ff5722;">
+            <div id="stage-puzzle" style="font-weight: bold; margin-bottom: 6px; color: #ffd700;">معما...</div>
+            <input type="text" id="user-answer" placeholder="پاسخ چالش را بنویسید..." autocomplete="off">
+            <button class="btn" onclick="checkAnswer()">⚔️ ابطال طلسم و فتح دژ</button>
+        </div>
+
+        <button class="btn btn-dark" onclick="getHint()">💡 راهنمایی عنصر (۱۵ سکه)</button>
+        <button class="btn btn-dark" onclick="showMap()">🗺️ بازگشت به نقشه</button>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-body" id="modal-content"></div>
+    </div>
+</div>
+
+<script>
+    var coins = 100;
+    var hp = 3;
+    var currentIdx = 0;
+    var activePuzzle = null;
+    var hasPaidVip = false;
+
+    // بانک معماهای بسیار عظیم و متنوع عناصر چهارگانه برای رندوم‌سازی کامل
+    var puzzleBank = {
+        water: [
+            { puzzle: "الگوی جریان آب: ۳ - ۷ - ۱۵ - ۳۱ - ؟", answer: "63", hint: "هر عدد دو برابر شده و +۱ می‌شود." },
+            { puzzle: "کدام عنصر شکل ثابت ندارد اما حجم ثابت دارد؟", answer: "آب", hint: "مایع زندگی‌بخش." },
+            { puzzle: "الگو: ۲ - ۶ - ۱۸ - ۵۴ - ؟", answer: "162", hint: "هر عدد ضرب در ۳ شده است." },
+            { puzzle: "اگر ۴ شیر آب استخری را در ۴ ساعت پر کنند، ۲ شیر آن را در چند ساعت پر می‌کنند؟", answer: "8", hint: "نسبت معکوس تعداد شیرها و زمان." },
+            { puzzle: "حجم مکعبی که طول یال آن ۳ متر است چند متر مکعب است؟", answer: "27", hint: "مکعب عدد ۳ (۳×۳×۳)." },
+            { puzzle: "ریشه دوم عدد ۱۴۴ به اضافه جذر عدد ۲۵ چند می‌شود؟", answer: "17", hint: "۱۲ + ۵" },
+            { puzzle: "کدام دریاچه بزرگ‌ترین دریاچه جهان است؟", answer: "کاسپین", hint: "دریاچه خزر یا کاسپین." },
+            { puzzle: "الگوی امواج: ۵ - ۱۰ - ۲۰ - ۴۰ - ؟", answer: "80", hint: "دو برابر شدن عدد قبلی." },
+            { puzzle: "اگر در یک مخزن آب، مقدار آب هر روز دو برابر شود و در روز ۳۰ام پر شود، در چه روزی نصف مخزن پر بوده؟", answer: "29", hint: "روز قبل از پر شدن کامل." }
+        ],
+        fire: [
+            { puzzle: "چیستان آتش: آن چیست که می‌خورد می‌میرد، آب می‌نوشد می‌میرد؟", answer: "آتش", hint: "عنصر سوزاننده." },
+            { puzzle: "معمای اولویت کوره: ۶ + ۶ × ۶ - ۶ چند می‌شود؟", answer: "36", hint: "اول ضرب (۶×۶=۳۶)، سپس +۶ و -۶." },
+            { puzzle: "الگوی حرارت: ۴ - ۹ - ۱۹ - ۳۹ - ؟", answer: "79", hint: "ضرب در ۲ به اضافه ۱." },
+            { puzzle: "اگر ۵ دستگاه در ۵ دقیقه ۵ قطعه تولید کنند، ۱۰۰ دستگاه در ۱۰۰ دقیقه چند قطعه تولید می‌کنند؟", answer: "2000", hint: "تولید هر دستگاه در دقیقه ثابت است." },
+            { puzzle: "حاصل عبارت جبری: (15 × 3) - 20 چند است؟", answer: "25", hint: "اول ضرب ۴۵ منهای ۲۰." },
+            { puzzle: "عدد بعدی دنباله فیبوناچی: ۱ - ۱ - ۲ - ۳ - ۵ - ۸ - ۱۳ - ؟", answer: "21", hint: "مجموع دو عدد قبلی." },
+            { puzzle: "حاصل ضرب ۱۱ در ۱۱ چند است؟", answer: "121", hint: "جدول ضرب اعداد دو رقمی." },
+            { puzzle: "اگر دمای آتش از ۱۰۰ درجه سانتی‌گراد ۵۰ درجه افزایش یابد و سپس ۳۰ درجه کم شود، دما چند است؟", answer: "120", hint: "۱۰۰ + ۵۰ - ۳۰" }
+        ],
+        earth: [
+            { puzzle: "چیستان خاک: آن چیست که همه‌چیز در آن رشد می‌کند اما خود زنده نیست؟", answer: "خاک", hint: "بستر گیاهان." },
+            { puzzle: "مجموع زوایای داخلی یک پنج‌ضلعی چند درجه است؟", answer: "540", hint: "فرمول: (۵ - ۲) × ۱۸۰" },
+            { puzzle: "الگوی صخره: ۱ - ۴ - ۹ - ۱۶ - ؟", answer: "25", hint: "مربع اعداد ۱ تا ۵." },
+            { puzzle: "محیط مستطیلی به طول ۱۰ و عرض ۶ چند است؟", answer: "32", hint: "مجموع دو برابر طول و عرض." },
+            { puzzle: "اگر سن پدر سه برابر پسر باشد و مجموع سن آن‌ها ۶۰ سال باشد، سن پسر چند است؟", answer: "15", hint: "۴ برابر سن پسر = ۶۰" },
+            { puzzle: "کدام عدد اول است: ۲۱، ۲۹، ۳۳، ۳۵؟", answer: "29", hint: "فقط بر خودش و یک بخش‌پذیر است." },
+            { puzzle: "تعداد ضلع‌های یک هشت‌ضلعی منتظم چند تاست؟", answer: "8", hint: "عدد نام در هشت‌ضلعی." },
+            { puzzle: "اگر مساحت مربعی ۳۶ متر مربع باشد، طول ضلع آن چند متر است؟", answer: "6", hint: "جذر عدد ۳۶." }
+        ],
+        wind: [
+            { puzzle: "آن چیست که دیده نمی‌شود اما درختان را می‌لرزاند؟", answer: "باد", hint: "عنصر وزنده." },
+            { puzzle: "اگر سرعت باد ۲ برابر شود، انرژی جنبشی چند برابر می‌شود؟ (عدد بنویسید)", answer: "4", hint: "انرژی با مربع سرعت رابطه دارد (۲ به توان ۲)." },
+            { puzzle: "الگوی طوفان: ۱۰ - ۲۰ - ۴۰ - ۸۰ - ؟", answer: "160", hint: "ضرب در ۲." },
+            { puzzle: "قطار برقی به سمت شمال می‌رود، دود آن به کدام طرف می‌رود؟", answer: "ندارد", hint: "قطار برقی دود ندارد!" },
+            { puzzle: "نصفِ ربعِ عدد ۸۰ چند می‌شود؟", answer: "10", hint: "اول ربع ۸۰ (۲۰)، بعد نصف آن." },
+            { puzzle: "کدام کلمه متضاد «امید» است؟", answer: "ناامیدی", hint: "با نا شروع می‌شود." },
+            { puzzle: "اگر باد با سرعت ۶۰ کیلومتر بر ساعت بوزد، در ۳ ساعت چه مسافتی طی می‌کند؟", answer: "180", hint: "سرعت ضرب در زمان." },
+            { puzzle: "معکوس عدد ۵ به اضافه نصف عدد ۱۰ چند می‌شود؟", answer: "5.2", hint: "۰.۲ + ۵" }
+        ]
+    };
+
+    var stages = [
+        { id: 1, align: 'center', name: "دژ ۱: ورودی قلمرو عناصر", element: 'water', story: "به ورودی قلمرو دیو رسیده‌اید. اولین طلسم آب را باطل کنید.", locked: false, cleared: false, icon: '🚩' },
+        { id: 2, align: 'right', name: "دژ ۲: گردنه مواد مذاب", element: 'fire', story: "رودخانه آتشین تنها با ابطال طلسم خاموش می‌شود.", locked: true, cleared: false, icon: '🌊' },
+        { id: 3, align: 'left', name: "دژ ۳: پل معلق آب", element: 'water', story: "رودخانه خروشان تحت فرمان عنصر آب است.", locked: true, cleared: false, icon: '🌉' },
+        { id: 4, align: 'right', name: "دژ ۴: برج آتشین", element: 'fire', story: "شراره‌های آتش برج نیاز به کد هوش دارد.", locked: true, cleared: false, icon: '🏰' },
+        { id: 5, align: 'left', name: "دژ ۵: صخره خاکی", element: 'earth', story: "طلسم عنصر خاک روی صخره حک شده است.", locked: true, cleared: false, icon: '⛰️' },
+        { id: 6, align: 'right', name: "دژ ۶: سیاهچال باد", element: 'wind', story: "نسیم جادویی سیاهچال را باز کنید.", locked: true, cleared: false, icon: '🔒' },
+        { id: 7, align: 'center', name: "دژ ۷: تالار حوضچه آب", element: 'water', story: "حوضچه جادویی عنصر آب طلسم شده است.", locked: true, cleared: false, icon: '🗝️' },
+        { id: 8, align: 'left', name: "دژ ۸: غار جادویی خاک", element: 'earth', story: "طلسم غار خاکی را باطل کنید.", locked: true, cleared: false, icon: '⛰️' },
+        { id: 9, align: 'right', name: "دژ ۹: برج آتش سرخ", element: 'fire', story: "عنصر آتش برج را محاصره کرده است.", locked: true, cleared: false, icon: '🔮' },
+        { id: 10, align: 'left', name: "دژ ۱۰: دیوار سنگی خاک", element: 'earth', story: "دیوار عظیم خاکی راه را بسته است.", locked: true, cleared: false, icon: '🏰' },
+        { id: 11, align: 'center', name: "دژ ۱۱: دشت گردباد", element: 'wind', story: "طلسم عنصر باد در دشت فعال شده است.", locked: true, cleared: false, icon: '🌲' },
+        { id: 12, align: 'left', name: "دژ ۱۲: گردنه خروشان آب", element: 'water', story: "جریان آب گردنه خروشان راه را مسدود کرده است.", locked: true, cleared: false, icon: '🌊' },
+        { id: 13, align: 'right', name: "دژ ۱۳: پل طوفان", element: 'wind', story: "گردباد شدیدی روی پل معلق در جریان است.", locked: true, cleared: false, icon: '🌉' },
+        { id: 14, align: 'left', name: "دژ ۱۴: برج دیده‌بانی خاک", element: 'earth', story: "دروازه سنگی برج نیاز به کد ریاضی دارد.", locked: true, cleared: false, icon: '🏰' },
+        { id: 15, align: 'right', name: "دژ ۱۵: دهانه آتش‌فشان", element: 'fire', story: "مواد مذاب به بیرون فواره می‌زنند.", locked: true, cleared: false, icon: '🌋' },
+        { id: 16, align: 'center', name: "دژ ۱۶: سیاهچال خاکی", element: 'earth', story: "نگهبان صخره‌ای سیاهچال بیدار است.", locked: true, cleared: false, icon: '🗝️' },
+        { id: 17, align: 'left', name: "دژ ۱۷: برج آینه‌های باد", element: 'wind', story: "طوفان آینه‌ها دید را تار کرده است.", locked: true, cleared: false, icon: '🔮' },
+        { id: 18, align: 'right', name: "دژ ۱۸: کوره جهنمی", element: 'fire', story: "شعله‌های کوره راه عبور را بسته‌اند.", locked: true, cleared: false, icon: '🔥' },
+        { id: 19, align: 'left', name: "دژ ۱۹: کمینگاه دیو", element: 'fire', story: "دیو تنومند آتشین ظاهر شد!", locked: true, cleared: false, icon: '👹' },
+        { id: 20, align: 'center', name: "دژ نهایی: قصر دیو و وصال", element: 'wind', story: "دختر به نامزدش رسید! آخرین جادوی دیو را با پاسخ کلمه عشق ابطال کنید.", puzzle: "کلمه «عشق» را بنویسید:", answer: "عشق", hint: "کلمه عشق", locked: true, cleared: false, icon: '🕺' }
+    ];
+
+    function loadGame() {
+        var savedVersion = localStorage.getItem('game_version');
+        if (savedVersion !== 'v6') {
+            localStorage.clear();
+            localStorage.setItem('game_version', 'v6');
+            return;
+        }
+
+        var savedCoins = localStorage.getItem('game_coins');
+        var savedHp = localStorage.getItem('game_hp');
+        var savedVip = localStorage.getItem('game_vip');
+        var savedStages = localStorage.getItem('game_stages');
+
+        if (savedCoins !== null) coins = parseInt(savedCoins);
+        if (savedHp !== null) hp = parseInt(savedHp);
+        if (savedVip !== null) hasPaidVip = (savedVip === 'true');
+
+        if (savedStages !== null) {
+            var parsed = JSON.parse(savedStages);
+            for (var i = 0; i < stages.length; i++) {
+                if (parsed[i]) {
+                    stages[i].locked = parsed[i].locked;
+                    stages[i].cleared = parsed[i].cleared;
+                }
+            }
+        }
+        document.getElementById('coins').innerText = coins;
+        document.getElementById('hp').innerText = hp;
+    }
+
+    function saveGame() {
+        localStorage.setItem('game_version', 'v6');
+        localStorage.setItem('game_coins', coins);
+        localStorage.setItem('game_hp', hp);
+        localStorage.setItem('game_vip', hasPaidVip);
+        var stageStates = stages.map(function(s) {
+            return { locked: s.locked, cleared: s.cleared };
+        });
+        localStorage.setItem('game_stages', JSON.stringify(stageStates));
+    }
+
+    function renderMap() {
+        var container = document.getElementById('nodes-container');
+        container.innerHTML = '';
+
+        for (var i = stages.length - 1; i >= 0; i--) {
+            var st = stages[i];
+            var row = document.createElement('div');
+            row.className = 'node-row ' + st.align;
+
+            var node = document.createElement('div');
+            var isHeroineHere = (!st.locked && !st.cleared);
+            var isFiery = (st.id >= 13);
+            
+            node.className = 'castle-node' + 
+                (st.locked ? ' locked' : '') + 
+                (st.cleared ? ' cleared' : '') + 
+                (isHeroineHere ? ' current' : '') +
+                (isFiery ? ' fiery-stage' : '');
+            
+            node.setAttribute('data-idx', i);
+            node.onclick = function() {
+                var idx = parseInt(this.getAttribute('data-idx'));
+                openStage(idx);
+            };
+
+            var html = '';
+            if (isHeroineHere) {
+                html += '<div class="heroine-marker">👸</div>';
+            }
+            html += '<div style="font-size:1.2rem;">' + (st.locked ? '🔒' : (st.cleared ? '✅' : st.icon)) + '</div>';
+            html += '<div class="node-label">دژ ' + st.id + '</div>';
+
+            node.innerHTML = html;
+            row.appendChild(node);
+            container.appendChild(row);
+        }
+    }
+
+    function openStage(idx) {
+        if (stages[idx].cleared) {
+            showModal('<h3>✨ این دژ قبلاً فتح شده است!</h3><p style="margin:10px 0; font-size:0.85rem;">طلسم این مرحله پیش‌تر باطل شده است. به سراغ دژهای فعال بعدی بروید.</p><button class="btn" onclick="closeModal()">متوجه شدم</button>');
+            return;
+        }
+
+        if (stages[idx].id >= 13 && !hasPaidVip) {
+            showModal('<h3>🔒 نیاز به مجوز دژهای پایانی!</h3><p style="margin:10px 0; font-size:0.85rem;">برای ورود به مراحل ۱۳ تا ۲۰ باید بسته دژهای آتشین را تهیه کرده باشید.</p><button class="btn btn-green" onclick="paySim()">خرید بسته دژهای پایانی (۴۹,۰۰۰ تومان)</button><br><br><button class="btn btn-dark" onclick="closeModal()">انصراف</button>');
+            return;
+        }
+
+        if (stages[idx].locked) {
+            showModal('<h3>🔒 این دژ قفل است!</h3><p style="margin:10px 0; font-size:0.85rem;">ابتدا باید دژهای قبلی را فتح کنید تا اجازه ورود صادر شود.</p><button class="btn" onclick="closeModal()">متوجه شدم</button>');
+            return;
+        }
+
+        currentIdx = idx;
+
+        // انتخاب کاملاً تصادفی و رندوم از بانک سوالات بر اساس عنصر دژ
+        if (stages[idx].puzzle && idx === 19) {
+            activePuzzle = { puzzle: stages[idx].puzzle, answer: stages[idx].answer, hint: stages[idx].hint };
+        } else {
+            var list = puzzleBank[stages[idx].element] || puzzleBank.water;
+            var randomIndex = Math.floor(Math.random() * list.length);
+            activePuzzle = list[randomIndex];
+        }
+
+        document.getElementById('view-map').style.display = 'none';
+        document.getElementById('view-game').style.display = 'flex';
+
+        document.getElementById('stage-name').innerText = stages[idx].name;
+        document.getElementById('stage-story').innerText = stages[idx].story;
+        document.getElementById('stage-puzzle').innerText = activePuzzle.puzzle;
+        document.getElementById('user-answer').value = '';
+
+        var puzzleBox = document.getElementById('puzzle-card-box');
+        if (stages[idx].id >= 13) {
+            puzzleBox.className = 'card fiery-card';
+        } else {
+            puzzleBox.className = 'card';
+            puzzleBox.style.borderColor = '#ff5722';
+        }
+    }
+
+    function checkAnswer() {
+        var val = document.getElementById('user-answer').value.trim();
+        var isCorrect = (val === activePuzzle.answer);
+
+        if (!isCorrect && activePuzzle.answer === "ندارد") {
+            if (val.includes("ندارد") || val.includes("دود ندارد") || val.includes("نداره")) {
+                isCorrect = true;
+            }
+        }
+
+        if (isCorrect) {
+            coins += 20;
+            document.getElementById('coins').innerText = coins;
+
+            stages[currentIdx].cleared = true;
+
+            if (stages[currentIdx].id === 20) {
+                saveGame();
+                renderMap();
+                showVictoryScene();
+                return;
+            }
+
+            if (currentIdx + 1 < stages.length) {
+                if (stages[currentIdx + 1].id < 13 || hasPaidVip) {
+                    stages[currentIdx + 1].locked = false;
+                }
+            }
+
+            saveGame();
+
+            showModal('<h3 style="color:#2ecc71;">🎉 طلسم دژ باطل شد!</h3><p style="margin:10px 0;">دختر یک گام دیگر به نامزدش نزدیک‌تر شد.</p><button class="btn" onclick="nextStage()">دژ بعدی ➡️</button>');
+            renderMap();
+        } else {
+            hp--;
+            document.getElementById('hp').innerText = hp;
+            saveGame();
+            if (hp <= 0) {
+                showModal('<h3 style="color:#ff5722;">💔 جان شما تمام شد!</h3><p style="margin:10px 0;">با سکه جان بخرید.</p><button class="btn btn-green" onclick="buyHp()">خرید جان (۲۰ سکه)</button>');
+            } else {
+                alert('پاسخ اشتباه است! ۱ جان کم شد.');
+            }
+        }
+    }
+
+    function showVictoryScene() {
+        showModal(`
+            <h2 style="color:#ffd700; font-size: 1.4rem;">🎉 وصال عاشقانه و آزادی! 🎉</h2>
+            <div class="reunion-box">
+                👸💖🕺
+            </div>
+            <p style="margin: 12px 0; color: #2ecc71; font-size: 0.95rem; line-height: 1.6;">
+                دیو تنومند شکست خورد و طلسم عناصر باطل گردید!<br>
+                دختر خانم آزاد شد و پس از روزها دوری به آغوش نامزدش بازگشت! 🌹
+            </p>
+            <button class="btn" style="background: linear-gradient(180deg, #ff3366 0%, #ba133a 100%); color:#fff;" onclick="closeModal(); showMap();">
+                💖 پایان داستان و مشاهده نقشه 💖
+            </button>
+        `);
+    }
+
+    function nextStage() {
+        closeModal();
+        if (currentIdx + 1 < stages.length && !stages[currentIdx + 1].locked) {
+            openStage(currentIdx + 1);
+        } else {
+            showMap();
+        }
+    }
+
+    function buyHp() {
+        if (coins >= 20) {
+            coins -= 20;
+            hp = 3;
+            document.getElementById('coins').innerText = coins;
+            document.getElementById('hp').innerText = hp;
+            saveGame();
+            closeModal();
+        } else {
+            alert('سکه کافی ندارید!');
+        }
+    }
+
+    function getHint() {
+        if (coins < 15) {
+            alert('سکه کافی ندارید!');
+            return;
+        }
+        coins -= 15;
+        document.getElementById('coins').innerText = coins;
+        saveGame();
+        showModal('<h3>💡 راهنمایی عنصر</h3><p style="margin:10px 0; color:#ffd700;">' + activePuzzle.hint + '</p><button class="btn" onclick="closeModal()">متوجه شدم</button>');
+    }
+
+    function openStore() {
+        showModal('<h3>🛒 فروشگاه مراحل پایانی</h3><p style="margin-bottom:10px;">با خرید این بسته، مجوز ورود به ۸ دژ پایانی (۱۳ تا ۲۰) صادر می‌شود.</p><button class="btn btn-green" onclick="paySim()">خرید بسته دژهای آتشین (۴۹,۰۰۰ تومان)</button><br><br><button class="btn btn-dark" onclick="closeModal()">بستن</button>');
+    }
+
+    function paySim() {
+        hasPaidVip = true;
+        if (stages[11].cleared) {
+            stages[12].locked = false;
+        }
+        saveGame();
+        renderMap();
+        showModal('<h3 style="color:#2ecc71;">✅ مجوز مراحل پایانی خریداری شد!</h3><p style="margin:10px 0;">اکنون می‌توانید با فتح دژ ۱۲، وارد دژهای پایانی (۱۳ تا ۲۰) شوید.</p><button class="btn" onclick="closeModal(); showMap();">مشاهده نقشه</button>');
+    }
+
+    function showMap() {
+        document.getElementById('view-game').style.display = 'none';
+        document.getElementById('view-map').style.display = 'flex';
+        renderMap();
+    }
+
+    function showModal(html) {
+        document.getElementById('modal-content').innerHTML = html;
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    loadGame();
+    renderMap();
+</script>
+
+</body>
+</html>
